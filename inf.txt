@@ -1,0 +1,45 @@
+Ein Installer ist eine Software, die verwendet wird, um Anwendungen auf einem Computer zu installieren. 
+Der Installer enthält alle erforderlichen Dateien, Bibliotheken und Abhängigkeiten, die für die Installation der Anwendung benötigt werden, und führt auch Schritte aus, 
+wie z.B. das Erstellen von Registrierungseinträgen, das Konfigurieren von Einstellungen und das Einrichten von Verknüpfungen. Es gibt viele verschiedene Installer-Tools, 
+die Sie verwenden können, um einen Installer für Ihre Python-Anwendung zu erstellen, einschließlich kommerzieller und Open-Source-Tools.
+
+Eine Möglichkeit, einen einfachen Installer für Ihre Python-Anwendung zu erstellen, besteht darin, ein bestehendes Tool wie Inno Setup oder NSIS zu verwenden. 
+Diese Tools ermöglichen es Ihnen, einen benutzerdefinierten Installer für Ihre Anwendung zu erstellen, der die erforderlichen Dateien enthält und während des Installationsprozesses verschiedene Schritte ausführt, 
+wie z.B. das Kopieren von Dateien, das Hinzufügen von Verknüpfungen und das Aktualisieren der Registrierung. Hier ist eine kurze Anleitung, 
+wie Sie mit Inno Setup einen einfachen Installer für Ihre Python-Anwendung erstellen können:
+
+Laden Sie Inno Setup von der offiziellen Website herunter und installieren Sie es.
+
+Erstellen Sie ein neues Skript in Inno Setup und fügen Sie die erforderlichen Dateien Ihrer Python-Anwendung hinzu, 
+indem Sie die Schaltfläche "Dateien hinzufügen" verwenden.
+
+Erstellen Sie eine benutzerdefinierte Aktion, um Python auf dem Computer zu installieren, falls es nicht vorhanden ist.
+
+Erstellen Sie benutzerdefinierte Aktionen, um die erforderlichen Abhängigkeiten Ihrer Anwendung zu installieren.
+
+Erstellen Sie eine benutzerdefinierte Aktion, um Ihre Python-Anwendung zu installieren, indem Sie das Skript oder die ausführbare Datei ausführen.
+
+Konfigurieren Sie die Schritte für die Deinstallation Ihrer Anwendung.
+
+Konfigurieren Sie Optionen für die Benutzeroberfläche des Installers, wie z.B. Sprache, Farben und Texte.
+
+Kompilieren Sie das Skript, um eine ausführbare Installationsdatei zu erstellen.
+
+Diese Schritte sind nur ein Beispiel für die Erstellung eines Installers mit Inno Setup. Die genauen Schritte hängen von den spezifischen Anforderungen Ihrer Anwendung ab. 
+Beachten Sie auch, dass die Erstellung eines benutzerdefinierten Installers eine gewisse Erfahrung im Bereich der Anwendungs- und Systemarchitektur erfordert. 
+Es kann hilfreich sein, einen erfahrenen Entwickler oder Systemadministrator hinzuzuziehen, um bei der Erstellung des Installers zu helfen.
+
+
+
+
+# Definiere die Aktion, die beim Klicken auf das Icon ausgeführt wird
+def on_clicked(icon, item):
+    print("Icon geklickt")
+
+
+# Beispiel für die Verwendung des Loggers
+    log.debug('Dies ist ein Debug-Eintrag.')
+    log.info('Dies ist ein Info-Eintrag.')
+    log.warning('Dies ist ein Warning-Eintrag.')
+    log.error('Dies ist ein Error-Eintrag.')
+    log.critical('Dies ist ein Critical-Eintrag.')
