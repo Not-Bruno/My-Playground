@@ -1,72 +1,58 @@
 import platform
 import psutil
 import time
-import logging as log
+import logging as logger
 import configparser
 import pystray
 from PIL import Image
 import threading
 from plyer import notification
 
-
-
-def show_tray_icon():
-    icon = Image.open("app_ico.png")
-    while True:
-        notification.notify(
-            title="Hello",
-            message="This is a tray icon demo",
-            app_icon=icon,
-            timeout=10,
-        )
-        time.sleep(60)
+# TODO
+# Überprüfen der Aktuellen Funktionen durch Neue Struktur
+# Pfäde anpassen
+# App Icon  in Taskleiste
+# Log funktion
+# Übertragung der Daten zum Server
+# Vervollständigung der Config Datei
 
 
 if __name__ == "__main__":
-    tray_thread = threading.Thread(target=show_tray_icon)
-    tray_thread.start()
-
     # Hier beginnt der Hauptcode mit der while-Schleife
     # Erstelle ein Konfigurations-Parser-Objekt
     config = configparser.ConfigParser()
     # Lade die Konfigurationsdatei
-    config.read('./client_config.ini')
+    config.read('.\GitHub\pynet\client_config.ini')
+
     # Lies den Wert einer Einstellung
-    log_file = config.get('system', 'log_file_path')
-    logging = config.get("logging", "enable_file_logging")
-    # Ändere den Wert einer Einstellung
-    config.set('network', 'port', '9090')
-    
-    print(logging)
+    log_file = config.get('LOGGING', 'log_file_path')
+    logging = config.get("LOGGING", "enable_file_logging")
+    tick = config.get("SETTINGS", "refresh_time")
     
     if logging:
         try:
             open(log_file, 'x')
             print("File created:", log_file)
-        except FileExistsError:
+        except FileExistsError as e:
             print("File already exists:", log_file)
     
         
         # Logger-Konfiguration
-        log = logging.getLogger(log_file)
-        log.setLevel(logging.DEBUG)
+        log = logger.getLogger(log_file)
+        log.setLevel(logger.DEBUG)
     
         # Handler für die Ausgabe in eine Datei und auf die Konsole
-        file_handler = log.FileHandler('my_log.log')
-        console_handler = log.StreamHandler()
+        file_handler = logger.FileHandler('my_log.log')
+        console_handler = logger.StreamHandler()
     
         # Formatter für den Log-Eintrag
-        formatter = log.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        formatter = logger.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
     
         # Füge die Handler zum Logger hinzu
         log.addHandler(file_handler)
         log.addHandler(console_handler)
-    
-    # Schreibe die geänderten Einstellungen zurück in die Konfigurationsdatei
-    with open('config.ini', 'w') as f:
-        config.write(f)
 
     while True:
         # Betriebssysteminformationen
@@ -145,5 +131,5 @@ if __name__ == "__main__":
 
         print("-"*50)
 
-        time.sleep(60)
-# ENDE
+        time.sleep(tick)
+# ENDE ----------------------------------------------------------------

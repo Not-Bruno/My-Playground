@@ -32,7 +32,12 @@ Es kann hilfreich sein, einen erfahrenen Entwickler oder Systemadministrator hin
 
 
 
+# Ändere den Wert einer Einstellung
+    config.set('network', 'port', '9090')
 
+# Schreibe die geänderten Einstellungen zurück in die Konfigurationsdatei
+    with open('config.ini', 'w') as f:
+        config.write(f)
 
 
 # Beispiel für die Verwendung des Loggers
