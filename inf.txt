@@ -32,9 +32,7 @@ Es kann hilfreich sein, einen erfahrenen Entwickler oder Systemadministrator hin
 
 
 
-# Definiere die Aktion, die beim Klicken auf das Icon ausgeführt wird
-def on_clicked(icon, item):
-    print("Icon geklickt")
+
 
 
 # Beispiel für die Verwendung des Loggers
