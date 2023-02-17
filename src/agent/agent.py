@@ -15,9 +15,12 @@ import os
 # Übertragung der Daten zum Server
 # Vervollständigung der Config Datei
 
-
 if __name__ == "__main__":
     # Hier beginnt der Hauptcode mit der while-Schleife
+    # Definition des Base Pfades
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    # Icon-Image laden
+    image = Image.open(os.path.join(base_path, 'content', 'app_ico.png'))
     config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'agent_config.ini')
     
     config = configparser.ConfigParser()
@@ -25,12 +28,11 @@ if __name__ == "__main__":
     # Lies den Wert einer Einstellung
     tick = config.getint('SETTINGS', 'refresh_time')
     
-    def setup_logging():
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'agent_config.ini')
-
+    def setup_logging(config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
         enable_logging = config.get("LOGGING", "enable_file_logging")   
+        print(enable_logging + "-"*100)
         log_file = config.get('LOGGING', 'log_file_path')
         
         try:
@@ -67,7 +69,7 @@ if __name__ == "__main__":
             else:
                 print(msg)  
         return log_func
-    log = setup_logging()
+    log = setup_logging(config_path)
 
 
 # BGIN WHILE LOOP ----------------------------------------------------------
