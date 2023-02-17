@@ -16,7 +16,5 @@ psutil==5.9.4
 pyfiglet==0.8.post1
 pyreadline3==3.4.1
 pystray==0.19.4
-python-dotenv==0.21.1
 six==1.16.0
 typing_extensions==4.2.0
-yarl==1.7.2
