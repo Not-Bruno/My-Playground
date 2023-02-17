@@ -11,7 +11,7 @@ import os
 
 # TODO
 # App Icon  in Taskleiste
-# Log funktion
+# Log funktion fehler schreibt nicht mehr in definierte Log datei
 # Übertragung der Daten zum Server
 # Vervollständigung der Config Datei
 
