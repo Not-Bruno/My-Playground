@@ -1,4 +1,5 @@
 import platform
+import socket
 import psutil
 import time
 import logging as logger
@@ -6,12 +7,13 @@ import configparser
 import pystray
 from PIL import Image
 import threading
-from plyer import notification
 import os
 
 # TODO
 # App Icon  in Taskleiste
-# Log funktion fehler schreibt nicht mehr in definierte Log datei
+# Code bereinigen
+# Auslesen der Config.ini vereinheitlichen -- wird aktuell mehrmals eingelesen 
+# Logfunktion anpassen
 # Übertragung der Daten zum Server
 # Vervollständigung der Config Datei
 
@@ -25,55 +27,84 @@ if __name__ == "__main__":
     
     config = configparser.ConfigParser()
     config.read(config_path)
+
     # Lies den Wert einer Einstellung
     tick = config.getint('SETTINGS', 'refresh_time')
     
     def setup_logging(config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
-        enable_logging = config.get("LOGGING", "enable_file_logging")   
-        print(enable_logging + "-"*100)
-        log_file = config.get('LOGGING', 'log_file_path')
-        
-        try:
-            open(log_file, 'x')
-            print("File created:", log_file)
-        except FileExistsError as e:
-            print("File already exists:", log_file)
+        enable_logging = config.getboolean("LOGGING", "enable_file_logging") # <- Hier wird getboolean() statt get() verwendet
 
-        # Logger-Konfiguration
-        log = logger.getLogger(log_file)
-        log.setLevel(logger.DEBUG)
+        if not enable_logging:
+            def log_func(msg, loglevel):
+                print(msg)  
+                return
+        else:
+            log_file = config.get('LOGGING', 'log_file_path')
+            try:
+                open(log_file, 'x')
+                print("File created:", log_file)
+            except FileExistsError as e:
+                pass
 
-        # Handler für die Ausgabe in eine Datei und auf die Konsole
-        file_handler = logger.FileHandler(log_file)
-        console_handler = logger.StreamHandler()
+            # Logger-Konfiguration
+            log = logger.getLogger(log_file)
+            log.setLevel(logger.DEBUG)
 
-        # Formatter für den Log-Eintrag
-        formatter = logger.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        file_handler.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
+            # Handler für die Ausgabe in eine Datei und auf die Konsole
+            file_handler = logger.FileHandler(log_file)
+            console_handler = logger.StreamHandler()
 
-        # Füge die Handler zum Logger hinzu
-        log.addHandler(file_handler)
-        log.addHandler(console_handler)
+            # Formatter für den Log-Eintrag
+            formatter = logger.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            file_handler.setFormatter(formatter)
+            console_handler.setFormatter(formatter)
 
-        def log_func(msg, loglevel):
-            if enable_logging:
+            # Füge die Handler zum Logger hinzu
+            log.addHandler(file_handler)
+            log.addHandler(console_handler)
+
+            def log_func(msg, loglevel):
                 if loglevel == "INF":
                     log.info(f'{msg}')
                 if loglevel == "WARN":
                     log.warning(f"{msg}")
                 if loglevel == "ERROR":
                     log.error(f"{msg}")
-            else:
-                print(msg)  
+                print(msg) 
+
         return log_func
+
     log = setup_logging(config_path)
+
+
+    def check_disk_usage(threshold):
+        """Checks the disk usage for each partition and sends a warning if usage exceeds the specified threshold."""
+        for partition in psutil.disk_partitions():
+            # Ignore CD-ROMs, network drives, and inaccessible drives
+            if 'cdrom' in partition.opts or partition.fstype == '':
+                continue
+            
+            # Extract the drive letter and drive path
+            device = partition.device
+            mount_point = partition.mountpoint
+
+            # Get the disk usage and calculate the percentage of used space
+            partition_usage = psutil.disk_usage(mount_point)
+            used_percent = partition_usage.percent
+
+            # Send a warning if the disk usage exceeds the specified threshold
+            if used_percent > threshold:
+                log(f"Drive {device} is at {used_percent}%!", "WARN")
+                print(f"WARNING: Disk usage for drive {device} is at {used_percent}%!")
 
 
 # BGIN WHILE LOOP ----------------------------------------------------------
     while True:
+        computer_name = socket.gethostname()
+        print(f"Hostname: {computer_name}")
+
         # Betriebssysteminformationen
         os_name = platform.system()
         os_release = platform.release()
@@ -105,12 +136,14 @@ if __name__ == "__main__":
                 print(f"  Total: {partition_usage.total / (1024.0 ** 3):.2f} GB")
                 print(f"  Used: {partition_usage.used / (1024.0 ** 3):.2f} GB")
                 print(f"  Free: {partition_usage.free / (1024.0 ** 3):.2f} GB")
-
-                log("Test", loglevel="INF")
+                
 
         except PermissionError as e:
             log(f"Laufwerkfehler: Permission Error - {e}", loglevel="INF")
 
+        # Überprüft die Kapazität der Festplatten
+        print("-" * 50)
+        check_disk_usage(config.getint("SETTINGS", "storage_quota_warn_at"))
 
         print("-"*50)
         # Informationen zum Arbeitsspeicher
@@ -131,8 +164,14 @@ if __name__ == "__main__":
         print("Anzahl der physischen CPU-Kerne:", physical_cores)
 
         # CPU-Auslastung
-        print("CPU-Auslastung: {}%".format(psutil.cpu_percent(interval=1)))
         print("-"*50)
+        cpu_usage = psutil.cpu_percent(interval=1)
+        warn_cpu_usage = config.getint("SETTINGS", "cpu_quota_warn_at")
+        print(f"CPU-Auslastung: {cpu_usage}%")
+        if cpu_usage > warn_cpu_usage:
+            log(f"CPU Auslastung ist über {warn_cpu_usage}%", "WARN")
+            print(f"WARNING: CPU Usage over {warn_cpu_usage}%")
+            print("-"*50)
 
         """
         # Prozessorzeit für jeden Prozess
