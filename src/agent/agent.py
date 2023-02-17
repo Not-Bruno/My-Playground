@@ -7,10 +7,9 @@ import pystray
 from PIL import Image
 import threading
 from plyer import notification
+import os
 
 # TODO
-# Überprüfen der Aktuellen Funktionen durch Neue Struktur
-# Pfäde anpassen
 # App Icon  in Taskleiste
 # Log funktion
 # Übertragung der Daten zum Server
@@ -19,41 +18,59 @@ from plyer import notification
 
 if __name__ == "__main__":
     # Hier beginnt der Hauptcode mit der while-Schleife
-    # Erstelle ein Konfigurations-Parser-Objekt
-    config = configparser.ConfigParser()
-    # Lade die Konfigurationsdatei
-    config.read('.\GitHub\pynet\client_config.ini')
-
-    # Lies den Wert einer Einstellung
-    log_file = config.get('LOGGING', 'log_file_path')
-    logging = config.get("LOGGING", "enable_file_logging")
-    tick = config.get("SETTINGS", "refresh_time")
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'agent_config.ini')
     
-    if logging:
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    # Lies den Wert einer Einstellung
+    tick = config.getint('SETTINGS', 'refresh_time')
+    
+    def setup_logging():
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'agent_config.ini')
+
+        config = configparser.ConfigParser()
+        config.read(config_path)
+        enable_logging = config.get("LOGGING", "enable_file_logging")   
+        log_file = config.get('LOGGING', 'log_file_path')
+        
         try:
             open(log_file, 'x')
             print("File created:", log_file)
         except FileExistsError as e:
             print("File already exists:", log_file)
-    
-        
+
         # Logger-Konfiguration
         log = logger.getLogger(log_file)
         log.setLevel(logger.DEBUG)
-    
+
         # Handler für die Ausgabe in eine Datei und auf die Konsole
-        file_handler = logger.FileHandler('my_log.log')
+        file_handler = logger.FileHandler(log_file)
         console_handler = logger.StreamHandler()
-    
+
         # Formatter für den Log-Eintrag
         formatter = logger.Formatter('%(asctime)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         file_handler.setFormatter(formatter)
         console_handler.setFormatter(formatter)
-    
+
         # Füge die Handler zum Logger hinzu
         log.addHandler(file_handler)
         log.addHandler(console_handler)
 
+        def log_func(msg, loglevel):
+            if enable_logging:
+                if loglevel == "INF":
+                    log.info(f'{msg}')
+                if loglevel == "WARN":
+                    log.warning(f"{msg}")
+                if loglevel == "ERROR":
+                    log.error(f"{msg}")
+            else:
+                print(msg)  
+        return log_func
+    log = setup_logging()
+
+
+# BGIN WHILE LOOP ----------------------------------------------------------
     while True:
         # Betriebssysteminformationen
         os_name = platform.system()
@@ -86,8 +103,11 @@ if __name__ == "__main__":
                 print(f"  Total: {partition_usage.total / (1024.0 ** 3):.2f} GB")
                 print(f"  Used: {partition_usage.used / (1024.0 ** 3):.2f} GB")
                 print(f"  Free: {partition_usage.free / (1024.0 ** 3):.2f} GB")
+
+                log("Test", loglevel="INF")
+
         except PermissionError as e:
-            print(f"Laufwerkfehler: PermissionError - {e}")
+            log(f"Laufwerkfehler: Permission Error - {e}", loglevel="INF")
 
 
         print("-"*50)

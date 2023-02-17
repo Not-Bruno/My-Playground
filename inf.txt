@@ -46,3 +46,12 @@ Es kann hilfreich sein, einen erfahrenen Entwickler oder Systemadministrator hin
     log.warning('Dies ist ein Warning-Eintrag.')
     log.error('Dies ist ein Error-Eintrag.')
     log.critical('Dies ist ein Critical-Eintrag.')
+
+
+
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    # Lies den Wert einer Einstellung
+    log_file = config.get('LOGGING', 'log_file_path')
+    logging = config.get("LOGGING", "enable_file_logging")
+    tick = config.get("SETTINGS", "refresh_time")
