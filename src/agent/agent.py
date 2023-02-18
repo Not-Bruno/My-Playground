@@ -121,7 +121,6 @@ if __name__ == "__main__":
             os_release = platform.release()
             os_version = platform.version()
 
-            print("-"*50)
             conn.sendall(f"Betriebssystem: {os_name} {os_release} ({os_version})".encode())
             #print(f"Betriebssystem: {os_name} {os_release} ({os_version})")
 
@@ -143,7 +142,6 @@ if __name__ == "__main__":
 
                         # Gibt die Größe des Laufwerks und die Menge des verfügbaren Speichers aus
                         partition_usage = psutil.disk_usage(mount_point)
-                        print("-"*50)
                         conn.sendall(f"Device: {device}".encode())
                         conn.sendall(f"Total: {partition_usage.total / (1024.0 ** 3):.2f} GB".encode())
                         conn.sendall(f"Used: {partition_usage.used / (1024.0 ** 3):.2f} GB".encode())
@@ -159,10 +157,7 @@ if __name__ == "__main__":
                     log(f"Laufwerkfehler: Permission Error - {e}", loglevel="INF")
 
                 # Überprüft die Kapazität der Festplatten
-                print("-" * 50)
                 check_disk_usage(config.getint("SETTINGS", "storage_quota_warn_at"), conn)
-
-            print("-"*50)
 
             if ram_monitoring:
                 # Informationen zum Arbeitsspeicher
@@ -209,8 +204,6 @@ if __name__ == "__main__":
                     print(f"Schnittstelle {interface}:")
                     print(f"\tBytes empfangen: {rec:.2f}")
                     print(f"\tBytes gesendet: {send:.2f}")
-
-                print("-"*50)
 
             time.sleep(tick)
     # ENDE ----------------------------------------------------------------
