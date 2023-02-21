@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
         if not enable_logging:
             def log_func(msg, loglevel):
-                print(msg)  
+                print(msg)
                 return
         else:
             log_file = config.get('LOGGING', 'log_file_path')
@@ -85,8 +85,7 @@ if __name__ == "__main__":
         """Checks the disk usage for each partition and sends a warning if usage exceeds the specified threshold."""
         for partition in psutil.disk_partitions():
             # Ignore CD-ROMs, network drives, and inaccessible drives
-            if 'cdrom' in partition.opts or partition.fstype == '':
-                continue
+            if 'cdrom' in partition.opts or partition.fstype == '': continue
             
             # Extract the drive letter and drive path
             device = partition.device
@@ -111,7 +110,7 @@ if __name__ == "__main__":
         log(f'Verbunden mit {addr}', "INF")
         #conn.sendall(str(cpu_data).encode())
 
-    # BGIN WHILE LOOP ----------------------------------------------------------
+# BGIN WHILE LOOP ----------------------------------------------------------
         while True:
             computer_name = socket.gethostname()
             print(f"Hostname: {computer_name}")
