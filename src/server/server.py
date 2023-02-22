@@ -1,49 +1,51 @@
-import socket
-import json
-import sqlite3
-import configparser
+import sys
 import os
-from PIL import Image
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PyQt5.QtGui import QIcon
 
-""" :TODO
-- Daten Empfangen
-- Daten sortieren und in Datenbank speichern
-- Evtl in Prozessen gehanthabt
-    - CPU Info -> wird gesendet an Port 8234
-    - RAM Info -> wird gesendet an Port 8244
-    
-"""
+
+class ScriptLauncher(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        base_path = os.path.abspath(os.path.dirname(__file__))
+        # Icon-Image laden
+        image = os.path.join(base_path, 'content', 'app_ico.png')
+
+        # Fenster- und Icon-Einstellungen
+        self.setWindowTitle("Script Launcher")
+        self.setGeometry(100, 100, 600, 400)
+        self.setWindowIcon(QIcon(image))
+
+        # Haupt-Layout
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        layout = QHBoxLayout()
+        central_widget.setLayout(layout)
+
+        # Liste der Skripte
+        script_list = ["script1.py", "script2.py", "script3.py"]
+
+        # Skript-Layout
+        script_layout = QVBoxLayout()
+        layout.addLayout(script_layout)
+
+        # Skript-Buttons hinzufügen
+        for script in script_list:
+            button = QPushButton(f"Start {script}")
+            button.clicked.connect(lambda _, s=script: self.start_script(s))
+            script_layout.addWidget(button)
+
+        # Status-Label
+        self.status_label = QLabel("Warte auf Start...")
+        layout.addWidget(self.status_label)
+
+    def start_script(self, script):
+        # Hier den Code einfügen, um das Skript zu starten
+        self.status_label.setText(f"Starte {script}...")
+
 
 if __name__ == '__main__':
-    # Definition des Base Pfades
-    base_path = os.path.abspath(os.path.dirname(__file__))
-    # Icon-Image laden
-    image = Image.open(os.path.join(base_path, 'content', 'app_ico.png'))
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'server_config.ini')
-    config = configparser.ConfigParser()
-    config.read(config_path)
-
-    # Host und Port, auf dem der Socket-Server lauscht
-    HOST = config.get("NETWORK", "server_addr")
-    PORT = config.getint("NETWORK", "server_port")
-
-    db_path = config.get("DATABASE", "db_path")
-
-    # Datenbank-Verbindung herstellen
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-
-    # Eine Funktion, um empfangene Daten in die Datenbank einzufügen
-    def insert_data(data):
-        c.execute("INSERT INTO cpu_data (cpu_percent, cpu_count) VALUES (?, ?)", (data["cpu_percent"], data["cpu_count"]))
-        conn.commit()
-
-    # Socket-Server verbinden und Daten empfangen
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-
-        while True:
-            # Daten empfangen und in die Datenbank einfügen
-            data = s.recv(1024)
-            client_data = json.loads(data.decode())
-            insert_data(client_data)
+    app = QApplication(sys.argv)
+    launcher = ScriptLauncher()
+    launcher.show()
